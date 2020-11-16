@@ -2,6 +2,7 @@ name: green-button-environment
 channels:
  - conda-forge
 dependencies:
+ - appmode
  - python
  - numpy
  - pip
