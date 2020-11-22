@@ -2,10 +2,8 @@ import json
 from collections import defaultdict
 import datetime
 
-def load_solar_data_from_json(tz):
-    jsonstr = open('./solar_production_20160813_to_20201108.json', 'rt').read()
-    solar = json.loads(jsonstr)['stats']
-    solardatadict = defaultdict(float)
+def _load_one_file(content, tz, solardatadict):
+    solar = json.loads(content)['stats']
     for x in solar:
         tsdate = datetime.datetime.fromtimestamp(x['start_time'], tz).date()
         assert x['interval_length'] == 900
@@ -14,4 +12,9 @@ def load_solar_data_from_json(tz):
                 assert val is None
             else:
                 solardatadict[(tsdate, tstime)] = (0. if val is None else val)
+
+def load_solar_data_from_json(contents, tz):
+    solardatadict = defaultdict(float)
+    for c in contents:
+        _load_one_file(c, tz, solardatadict)
     return solardatadict
