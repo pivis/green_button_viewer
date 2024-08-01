@@ -19,17 +19,24 @@ def load_sce_data_from_xml(contents, tz):
     datapoints = [node_to_datapoint(node)
                     for content in contents
                     for node in parse_xml(content).xpath("//*[name()='IntervalReading']")]
-    
+
     datadict = defaultdict(float)
     dates = set()
     for p in datapoints:
         start, duration, value = p
-        assert duration == 900
+        assert duration in (900, 3600), f"Duration is {duration} instead of 900 - wrong resolution of data?"
         ts = datetime.datetime.fromtimestamp(start, tz)
         tsdate = ts.date()
-        tstime = ts.hour * 4 + ts.minute // 15
-        assert 0 <= tstime <= 95
-        datadict[(tsdate, tstime)] = value
+        if duration == 900:
+            tstime = ts.hour * 4 + ts.minute // 15
+            assert 0 <= tstime <= 95
+            datadict[(tsdate, tstime)] = value
+        elif duration == 3600:
+            tstime = ts.hour * 4
+            for i in range(4):
+                datadict[(tsdate, tstime + i)] = value // 4
+        else:
+            assert False
         dates.add(tsdate)
 
     return datadict, dates
