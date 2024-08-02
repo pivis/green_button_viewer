@@ -18,7 +18,7 @@ def node_to_datapoint(node):
 def load_sce_data_from_xml(contents, tz):
     datapoints = [node_to_datapoint(node)
                     for content in contents
-                    for node in parse_xml(content).xpath("//*[name()='IntervalReading']")]
+                    for node in parse_xml(content).xpath("//*[name()='IntervalReading' and ancestor::*[name()='IntervalBlock' and @rel='Delivered']]")]
 
     datadict = defaultdict(float)
     dates = set()
